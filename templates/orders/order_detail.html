@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<h4>订单详情 #{{ order.id }}</h4>
+<div class="row"><div class="col-md-6"><div class="card mb-3"><div class="card-header fw-bold">基本信息</div><div class="card-body">
+<p><strong>状态:</strong> <span class="badge bg-primary">{{ order.get_status_display }}</span></p>
+<p><strong>客户:</strong> {{ order.customer.real_name|default:'-' }} ({{ order.customer.phone }})</p>
+<p><strong>房间:</strong> {{ order.room.room_number|default:'-' }} - {{ order.room.room_type.name|default:'' }}</p>
+<p><strong>入住:</strong> {{ order.check_in|date:'Y-m-d H:i' }}</p><p><strong>退房:</strong> {{ order.check_out|date:'Y-m-d H:i' }}</p>
+{% if order.actual_check_in %}<p><strong>实际入住:</strong> {{ order.actual_check_in|date:'Y-m-d H:i' }}</p>{% endif %}
+<p><strong>入住人数:</strong> {{ order.guest_count }}</p><p><strong>备注:</strong> {{ order.remark|default:'无' }}</p>
+</div></div></div><div class="col-md-6"><div class="card mb-3"><div class="card-header fw-bold">费用明细</div><div class="card-body">
+<p><strong>房费:</strong> ￥{{ order.room_fee }}</p><p><strong>押金:</strong> ￥{{ order.deposit }}</p>
+<p><strong>额外消费:</strong> ￥{{ order.total_consumption }}</p><p><strong>优惠:</strong> ￥{{ order.discount }}</p>
+<p><strong>实付:</strong> ￥{{ order.final_amount }}</p></div></div></div></div>
+<div class="card mb-3"><div class="card-header fw-bold">消费记录 <button class="btn btn-sm btn-outline-primary float-end" data-bs-toggle="modal" data-bs-target="#addConsumption">+ 添加</button></div><div class="card-body">
+<table class="table table-sm"><thead><tr><th>类型</th><th>金额</th><th>时间</th><th>备注</th></tr></thead><tbody>
+{% for b in bills %}<tr><td>{{ b.get_bill_type_display }}</td><td>￥{{ b.amount }}</td><td>{{ b.created_at|date:'m-d H:i' }}</td><td>{{ b.description }}</td></tr>{% empty %}<tr><td colspan="4" class="text-muted">暂无</td></tr>{% endfor %}</tbody></table></div></div>
+<div class="mb-3">
+{% if order.status == 'booked' or order.status == 'waiting' %}<a href="{% url 'order_check_in' order.pk %}" class="btn btn-success">办理入住</a>{% endif %}
+{% if order.status == 'in_stay' or order.status == 'extended' %}<a href="{% url 'order_check_out' order.pk %}" class="btn btn-warning">办理退房</a>{% endif %}
+{% if order.status == 'settling' %}<a href="{% url 'order_settle' order.pk %}" class="btn btn-primary">结算</a>{% endif %}
+{% if order.status in 'pending,booked,waiting' %}<a href="{% url 'order_cancel' order.pk %}" class="btn btn-danger" onclick="return confirm('确认取消?')">取消订单</a>{% endif %}
+<a href="{% url 'order_list' %}" class="btn btn-secondary">返回</a></div>
+<div class="modal fade" id="addConsumption"><div class="modal-dialog"><div class="modal-content"><form method="post" action="{% url 'add_consumption' order.pk %}">{% csrf_token %}
+<div class="modal-header"><h5>添加消费</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+<div class="modal-body"><div class="mb-3"><label class="form-label">类型</label><select name="bill_type" class="form-select"><option value="dining">餐饮</option><option value="goods">日用品</option><option value="laundry">洗衣</option><option value="entertainment">棋牌</option><option value="other">其他</option></select></div>
+<div class="mb-3"><label class="form-label">金额</label><input type="number" step="0.01" name="amount" class="form-control" required></div>
+<div class="mb-3"><label class="form-label">备注</label><input type="text" name="description" class="form-control"></div></div>
+<div class="modal-footer"><button class="btn btn-primary">添加</button></div></form></div></div></div>
+{% endblock %}

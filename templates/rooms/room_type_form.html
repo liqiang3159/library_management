@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h4>{% if type %}编辑房型{% else %}新增房型{% endif %}</h4>
+<div class="col-md-8"><div class="card"><div class="card-body">
+<form method="post" enctype="multipart/form-data">{% csrf_token %}
+<div class="row"><div class="col-md-6 mb-3"><label class="form-label">房型名称</label><input type="text" name="name" class="form-control" value="{{ type.name|default:'' }}" required></div>
+<div class="col-md-3 mb-3"><label class="form-label">容纳人数</label><input type="number" name="capacity" class="form-control" value="{{ type.capacity|default:2 }}" required></div>
+<div class="col-md-3 mb-3"><label class="form-label">床型</label><input type="text" name="bed_type" class="form-control" value="{{ type.bed_type|default:'' }}" required></div></div>
+<div class="row"><div class="col-md-4 mb-3"><label class="form-label">面积</label><input type="text" name="area" class="form-control" value="{{ type.area|default:'' }}"></div>
+<div class="col-md-4 mb-3"><label class="form-label">日常售价</label><input type="number" step="0.01" name="daily_price" class="form-control" value="{{ type.daily_price|default:'' }}" required></div>
+<div class="col-md-4 mb-3"><label class="form-label">排序权重</label><input type="number" name="sort_order" class="form-control" value="{{ type.sort_order|default:0 }}"></div></div>
+<div class="row"><div class="col-md-3 mb-3"><label class="form-label">会员价</label><input type="number" step="0.01" name="member_price" class="form-control" value="{{ type.member_price|default:0 }}"></div>
+<div class="col-md-3 mb-3"><label class="form-label">周末价</label><input type="number" step="0.01" name="weekend_price" class="form-control" value="{{ type.weekend_price|default:0 }}"></div>
+<div class="col-md-3 mb-3"><label class="form-label">节假日价</label><input type="number" step="0.01" name="holiday_price" class="form-control" value="{{ type.holiday_price|default:0 }}"></div>
+<div class="col-md-3 mb-3"><label class="form-label">长住折扣</label><input type="number" step="0.01" name="long_stay_discount" class="form-control" value="{{ type.long_stay_discount|default:0.9 }}"></div></div>
+<div class="mb-3"><label class="form-label">配套设施</label><textarea name="facilities" class="form-control" rows="2">{{ type.facilities|default:'' }}</textarea></div>
+<div class="mb-3"><label class="form-label">介绍</label><textarea name="description" class="form-control" rows="2">{{ type.description|default:'' }}</textarea></div>
+<div class="mb-3"><label class="form-label">展示图</label><input type="file" name="image" class="form-control"></div>
+<div class="mb-3"><label class="form-check-label"><input type="checkbox" name="has_breakfast" class="form-check-input" {% if type.has_breakfast %}checked{% endif %}> 含早餐</label>
+<label class="form-check-label ms-3"><input type="checkbox" name="is_active" class="form-check-input" {% if not type or type.is_active %}checked{% endif %}> 启用</label></div>
+<button type="submit" class="btn btn-primary">保存</button><a href="{% url 'room_type_list' %}" class="btn btn-secondary ms-2">返回</a>
+</form></div></div></div>{% endblock %}

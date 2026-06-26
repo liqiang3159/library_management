@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h4><i class="bi bi-grid"></i> 房型管理 {% if is_admin %}<a href="{% url 'room_type_create' %}" class="btn btn-primary btn-sm float-end">+ 新增房型</a>{% endif %}</h4>
+<div class="row">{% for t in types %}
+<div class="col-md-4 mb-3"><div class="card h-100"><div class="card-body">
+<h5>{{ t.name }} <span class="badge {% if t.is_active %}bg-success{% else %}bg-secondary{% endif %} float-end">{% if t.is_active %}启用{% else %}停用{% endif %}</span></h5>
+<p class="text-muted small">{{ t.capacity }}人 | {{ t.bed_type }} | {{ t.area }}</p>
+<p class="text-primary fw-bold">￥{{ t.daily_price }}/晚</p>
+<p class="small">{{ t.facilities }}</p>
+{% if is_admin %}<a href="{% url 'room_type_edit' t.pk %}" class="btn btn-sm btn-outline-primary">编辑</a>{% endif %}
+</div></div></div>{% empty %}<p class="text-muted">暂无房型</p>{% endfor %}</div>
+{% endblock %}

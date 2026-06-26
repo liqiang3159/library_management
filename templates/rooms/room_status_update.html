@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}<h4>修改房态 - {{ room.room_number }}</h4>
+<div class="col-md-4"><div class="card"><div class="card-body">
+<p>当前状态: <span class="badge bg-info">{{ room.get_status_display }}</span></p>
+<p>房型: {{ room.room_type.name }}</p>
+<form method="post">{% csrf_token %}<div class="mb-3"><label class="form-label">新状态</label>
+<select name="status" class="form-select">{% for s in status_choices %}<option value="{{ s.0 }}" {% if room.status == s.0 %}selected{% endif %}>{{ s.1 }}</option>{% endfor %}</select></div>
+<button type="submit" class="btn btn-warning">确认修改</button><a href="{% url 'room_list' %}" class="btn btn-secondary ms-2">返回</a>
+</form></div></div></div>{% endblock %}

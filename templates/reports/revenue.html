@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}<h4><i class="bi bi-graph-up"></i> 营收报表</h4>
+<form method="get" class="row g-2 mb-3"><div class="col-md-3"><input type="date" name="start" class="form-control" value="{{ start }}"></div><div class="col-md-3"><input type="date" name="end" class="form-control" value="{{ end }}"></div><div class="col-md-2"><button class="btn btn-primary">查询</button></div></form>
+<div class="row g-3"><div class="col-md-3"><div class="card card-stat border-success"><div class="card-body"><small class="text-muted">总营收</small><h3>￥{{ total_revenue }}</h3></div></div></div>
+<div class="col-md-3"><div class="card card-stat border-primary"><div class="card-body"><small class="text-muted">总订单</small><h3>{{ total_orders }}</h3></div></div></div>
+<div class="col-md-3"><div class="card card-stat border-info"><div class="card-body"><small class="text-muted">已完成</small><h3>{{ completed }}</h3></div></div></div>
+<div class="col-md-3"><div class="card card-stat border-danger"><div class="card-body"><small class="text-muted">已取消</small><h3>{{ cancelled }}</h3></div></div></div></div>
+{% endblock %}

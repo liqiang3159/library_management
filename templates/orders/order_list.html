@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h4><i class="bi bi-receipt"></i> 订单管理 {% if user.role in 'super_admin,front_desk' %}<a href="{% url 'order_create' %}" class="btn btn-primary btn-sm float-end">+ 新建订单</a>{% endif %}</h4>
+<form method="get" class="row g-2 mb-3"><div class="col-md-3"><select name="status" class="form-select"><option value="">全部状态</option>{% for s in status_choices %}<option value="{{ s.0 }}" {% if status_filter == s.0 %}selected{% endif %}>{{ s.1 }}</option>{% endfor %}</select></div>
+<div class="col-md-3"><input type="text" name="search" class="form-control" placeholder="手机号 / 订单号" value="{{ search }}"></div>
+<div class="col-md-2"><button class="btn btn-primary">查询</button></div></form>
+<table class="table table-hover bg-white rounded shadow-sm"><thead><tr><th>订单号</th><th>客户</th><th>房间</th><th>入住-退房</th><th>金额</th><th>状态</th><th>操作</th></tr></thead><tbody>
+{% for o in orders %}<tr><td>#{{ o.id }}</td><td>{{ o.customer.real_name|default:o.customer.phone }}</td><td>{{ o.room.room_number|default:'-' }}</td>
+<td>{{ o.check_in|date:'m-d H:i' }} ~ {{ o.check_out|date:'m-d H:i' }}</td><td>￥{{ o.final_amount }}</td>
+<td><span class="badge status-badge {% if o.status == 'completed' %}bg-success{% elif o.status == 'cancelled' %}bg-danger{% elif o.status == 'in_stay' %}bg-primary{% elif o.status == 'booked' %}bg-info{% elif o.status == 'pending' %}bg-warning{% else %}bg-secondary{% endif %}">{{ o.get_status_display }}</span></td>
+<td><a href="{% url 'order_detail' o.pk %}" class="btn btn-sm btn-outline-primary">详情</a></td></tr>{% empty %}<tr><td colspan="7" class="text-center text-muted">暂无订单</td></tr>{% endfor %}
+</tbody></table>{% include "_pagination.html" with page_obj=orders %}
+{% endblock %}

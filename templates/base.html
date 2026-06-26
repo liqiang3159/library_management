@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>酒店管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background: #f5f6fa; min-height: 100vh; }
+        .sidebar { width: 240px; background: #2c3e50; color: #ecf0f1; min-height: 100vh; position: fixed; }
+        .sidebar .nav-link { color: #bdc3c7; padding: 12px 20px; border-radius: 0; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background: #34495e; color: #fff; }
+        .sidebar .nav-link i { margin-right: 8px; }
+        .main-content { margin-left: 240px; padding: 20px; }
+        .card-stat { border-left: 4px solid; border-radius: 8px; }
+        .status-badge { font-size: 0.85rem; }
+        @media (max-width: 768px) { .sidebar { width: 100%; position: relative; min-height: auto; } .main-content { margin-left: 0; } }
+    </style>
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <div class="sidebar d-flex flex-column">
+        <div class="p-3 text-center border-bottom border-secondary">
+            <h5 class="mb-0"><i class="bi bi-building"></i> 酒店管理</h5>
+            <small>{{ user.real_name|default:user.username }} | {{ user.get_role_display }}</small>
+        </div>
+        <nav class="nav flex-column mt-2">
+            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}"><i class="bi bi-speedometer2"></i> 工作台</a>
+            <div class="nav-section px-3 pt-3 pb-1 text-muted small">客房管理</div>
+            <a class="nav-link" href="{% url 'room_list' %}"><i class="bi bi-door-open"></i> 客房列表</a>
+            {% if user.role == 'super_admin' %}
+            <a class="nav-link" href="{% url 'room_type_list' %}"><i class="bi bi-grid"></i> 房型管理</a>
+            <a class="nav-link" href="{% url 'hotel_config' %}"><i class="bi bi-gear"></i> 酒店设置</a>
+            {% endif %}
+            <div class="nav-section px-3 pt-3 pb-1 text-muted small">订单管理</div>
+            <a class="nav-link" href="{% url 'order_list' %}"><i class="bi bi-receipt"></i> 订单列表</a>
+            {% if user.role in 'super_admin,front_desk' %}
+            <a class="nav-link" href="{% url 'order_create' %}"><i class="bi bi-plus-circle"></i> 新建订单</a>
+            {% endif %}
+            {% if user.role in 'super_admin,housekeeping' %}
+            <a class="nav-link" href="{% url 'cleaning_list' %}"><i class="bi bi-droplet"></i> 清洁任务</a>
+            {% endif %}
+            <div class="nav-section px-3 pt-3 pb-1 text-muted small">数据报表</div>
+            <a class="nav-link" href="{% url 'revenue_report' %}"><i class="bi bi-graph-up"></i> 营收报表</a>
+            <a class="nav-link" href="{% url 'room_report' %}"><i class="bi bi-pie-chart"></i> 客房报表</a>
+            <a class="nav-link" href="{% url 'order_report' %}"><i class="bi bi-bar-chart"></i> 订单报表</a>
+            {% if user.role == 'super_admin' %}
+            <div class="nav-section px-3 pt-3 pb-1 text-muted small">系统管理</div>
+            <a class="nav-link" href="{% url 'employee_list' %}"><i class="bi bi-people"></i> 员工管理</a>
+            <a class="nav-link" href="{% url 'customer_list' %}"><i class="bi bi-person-lines-fill"></i> 客户管理</a>
+            <a class="nav-link" href="{% url 'log_list' %}"><i class="bi bi-journal-text"></i> 操作日志</a>
+            {% endif %}
+        </nav>
+        <div class="mt-auto p-3 border-top border-secondary">
+            <a class="btn btn-outline-light btn-sm w-100" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i> 退出登录</a>
+        </div>
+    </div>
+    {% endif %}
+    <div class="main-content">
+        {% if messages %}
+        {% for msg in messages %}
+        <div class="alert alert-{{ msg.tags|default:'info' }} alert-dismissible fade show" role="alert">
+            {{ msg }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% block content %}{% endblock %}
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

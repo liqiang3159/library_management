@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h4><i class="bi bi-door-open"></i> 客房列表
+{% if user.role == 'super_admin' %}<a href="{% url 'room_create' %}" class="btn btn-primary btn-sm float-end">+ 新增房间</a>{% endif %}</h4>
+<div class="mb-3">{% for s in status_choices %}<a href="?status={{ s.0 }}" class="btn btn-sm {% if status_filter == s.0 %}btn-primary{% else %}btn-outline-secondary{% endif %} me-1">{{ s.1 }}({{ s.0 }})</a>{% endfor %}<a href="?" class="btn btn-sm btn-outline-secondary">全部</a></div>
+<div class="row">{% for r in rooms %}
+<div class="col-md-3 mb-3"><div class="card"><div class="card-body">
+<h6>{{ r.room_number }} <span class="badge bg-info float-end">{{ r.get_status_display }}</span></h6>
+<p class="small text-muted mb-1">{{ r.floor }}F | {{ r.room_type.name }} | ￥{{ r.room_type.daily_price }}/晚</p>
+<p class="small mb-2">设施: {{ r.facilities_status }}</p>
+<div class="btn-group btn-group-sm">
+<a href="{% url 'room_edit' r.pk %}" class="btn btn-outline-secondary">详情</a>
+{% if user.role in 'super_admin,front_desk' %}<a href="{% url 'room_status_update' r.pk %}" class="btn btn-outline-warning">改态</a>{% endif %}
+</div></div></div></div>{% empty %}<p class="text-muted">暂无房间</p>{% endfor %}</div>
+{% include "_pagination.html" with page_obj=rooms %}
+{% endblock %}

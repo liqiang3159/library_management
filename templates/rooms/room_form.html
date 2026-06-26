@@ -1,0 +1,12 @@
+﻿{% extends "base.html" %}
+{% block content %}<h4>{% if room %}缂栬緫鎴块棿{% else %}鏂板鎴块棿{% endif %}</h4>
+<div class="col-md-6"><div class="card"><div class="card-body"><form method="post">{% csrf_token %}
+<div class="mb-3"><label class="form-label">鎴垮彿</label><input type="text" name="room_number" class="form-control" value="{{ room.room_number|default:'' }}" required></div>
+<div class="mb-3"><label class="form-label">妤煎眰</label><input type="text" name="floor" class="form-control" value="{{ room.floor|default:'' }}" required></div>
+<div class="mb-3"><label class="form-label">鎴垮瀷</label><select name="room_type" class="form-select">{% for t in types %}<option value="{{ t.pk }}" {% if room and room.room_type_id == t.pk %}selected{% endif %}>{{ t.name }} (锟{ t.daily_price }})</option>{% endfor %}</select></div>
+{% if is_admin or not room %}<div class="mb-3"><label class="form-label">鐘舵€?/label><select name="status" class="form-select">{% for s in status_choices %}<option value="{{ s.0 }}" {% if room.status == s.0 %}selected{% endif %}>{{ s.1 }}</option>{% endfor %}</select></div>{% endif %}
+<div class="mb-3"><label class="form-label">璁炬柦鐘舵€?/label><input type="text" name="facilities_status" class="form-control" value="{{ room.facilities_status|default:'姝ｅ父' }}"></div>
+<div class="mb-3"><label class="form-label">澶囨敞</label><textarea name="description" class="form-control" rows="2">{{ room.description|default:'' }}</textarea></div>
+{% if is_admin %}<div class="mb-3"><label class="form-check-label"><input type="checkbox" name="is_bookable" class="form-check-input" {% if not room or room.is_bookable %}checked{% endif %}> 鍙璁?/label></div>{% endif %}
+<button type="submit" class="btn btn-primary">淇濆瓨</button><a href="{% url 'room_list' %}" class="btn btn-secondary ms-2">杩斿洖</a>
+</form></div></div></div>{% endblock %}

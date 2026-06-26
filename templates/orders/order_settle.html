@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h4>结算 - 订单 #{{ order.id }}</h4>
+<div class="col-md-6"><div class="card"><div class="card-body">
+<table class="table"><tr><td>房费</td><td>￥{{ order.room_fee }}</td></tr>
+<tr><td>额外消费</td><td>￥{{ order.total_consumption }}</td></tr>
+<tr><td>优惠</td><td>￥{{ order.discount }}</td></tr>
+<tr><td>押金</td><td>￥{{ order.deposit }}</td></tr>
+<tr class="fw-bold"><td>合计应收</td><td>￥{{ order.room_fee|add:order.total_consumption|add:order.discount|floatformat:2 }}</td></tr>
+</table>
+<p class="text-muted">退房后房间将自动变为脏房，生成清洁任务。</p>
+<form method="post">{% csrf_token %}<button class="btn btn-primary btn-lg w-100">确认结算</button></form>
+</div></div></div>
+{% endblock %}
