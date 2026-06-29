@@ -1,0 +1,11 @@
+﻿django>=6.0,<7.0
+djangorestframework>=3.17
+djangorestframework-simplejwt>=5.5
+mysqlclient>=2.2
+redis>=8.0
+django-cors-headers>=4.9
+django-redis>=7.0
+Pillow>=12.0
+whitenoise>=6.0
+dj-database-url>=3.0
+gunicorn>=26.0
