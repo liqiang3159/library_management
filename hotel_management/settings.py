@@ -1,10 +1,15 @@
 ﻿import os, sys
 from pathlib import Path
 from datetime import timedelta
+
+# ---- PyMySQL 兼容 MySQLdb（Railway Linux 环境必备） ----
+import pymysql
+pymysql.install_as_MySQLdb()
+
 import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(BASE_DIR / "venv" / "Lib" / "site-packages"))
+# Local venv path (only used on Windows dev)\nif os.path.exists(BASE_DIR / "venv" / "Lib" / "site-packages"):\n    sys.path.insert(0, str(BASE_DIR / "venv" / "Lib" / "site-packages"))
 
 # ---- 环境变量驱动（本地默认 + Railway 覆盖） ----
 SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-hotel-management-system-2026")
@@ -101,7 +106,7 @@ TEMPLATES = [{
 
 WSGI_APPLICATION = "hotel_management.wsgi.application"
 
-# ===== 静态文件（Whitenoise 生产模式） =====
+# ===== 静态文件（Whitenoise） =====
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
@@ -126,7 +131,7 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
 
-# ===== 跨域 & 安全 =====
+# ===== 跨域与安全 =====
 CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "http://127.0.0.1:8000").split(",")
 LOGIN_URL = "/accounts/login/"
