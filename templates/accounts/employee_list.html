@@ -1,0 +1,37 @@
+﻿{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4><i class="bi bi-people"></i> 员工管理</h4>
+    <a href="{% url 'employee_create' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> 添加员工</a>
+</div>
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>用户名</th><th>姓名</th><th>手机号</th><th>角色</th><th>状态</th><th>创建时间</th><th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in employees %}
+                <tr>
+                    <td>{{ e.username }}</td>
+                    <td>{{ e.real_name }}</td>
+                    <td>{{ e.phone }}</td>
+                    <td>{{ e.get_role_display }}</td>
+                    <td>{% if e.is_active %}✅ 启用{% else %}❌ 禁用{% endif %}</td>
+                    <td>{{ e.created_at|date:"Y-m-d" }}</td>
+                    <td>
+                        <a href="{% url 'employee_edit' e.pk %}" class="btn btn-sm btn-outline-primary">编辑</a>
+                        <a href="{% url 'employee_delete' e.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('确定删除？')">删除</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="text-center text-muted py-3">暂无员工</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% include "_pagination.html" with page_obj=employees %}
+{% endblock %}

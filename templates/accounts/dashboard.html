@@ -3,12 +3,12 @@
 <h4 class="mb-4"><i class="bi bi-speedometer2"></i> 数据总览</h4>
 <div class="row g-3">
     <div class="col-md-3"><div class="card card-stat border-primary"><div class="card-body"><small class="text-muted">总房间</small><h3>{{ total_rooms }}</h3></div></div></div>
-    <div class="col-md-3"><div class="card card-stat border-success"><div class="card-body"><small class="text-muted">空房数</small><h3>{{ available_rooms }}</h3></div></div></div>
+    <div class="col-md-3"><div class="card card-stat border-success"><div class="card-body"><small class="text-muted">空房</small><h3>{{ available_rooms }}</h3></div></div></div>
     <div class="col-md-3"><div class="card card-stat border-warning"><div class="card-body"><small class="text-muted">入住中</small><h3>{{ occupied_rooms }}</h3></div></div></div>
-    <div class="col-md-3"><div class="card card-stat border-info"><div class="card-body"><small class="text-muted">已预订</small><h3>{{ booked_rooms }}</h3></div></div></div>
     <div class="col-md-3"><div class="card card-stat border-danger"><div class="card-body"><small class="text-muted">脏房</small><h3>{{ dirty_rooms }}</h3></div></div></div>
-    <div class="col-md-3"><div class="card card-stat border-secondary"><div class="card-body"><small class="text-muted">维修中</small><h3>{{ maintenance_rooms }}</h3></div></div></div>
     <div class="col-md-3"><div class="card card-stat border-primary"><div class="card-body"><small class="text-muted">今日订单</small><h3>{{ today_orders }}</h3></div></div></div>
-    <div class="col-md-3"><div class="card card-stat border-warning"><div class="card-body"><small class="text-muted">清洁任务</small><h3>{{ pending_tasks }}</h3></div></div></div>
+    <div class="col-md-3"><div class="card card-stat border-warning"><div class="card-body"><small class="text-muted">待清洁</small><h3>{{ pending_tasks }}</h3></div></div></div>
+    <div class="col-md-3"><div class="card card-stat border-info"><div class="card-body"><small class="text-muted">员工总数</small><h3>{{ total_employees }}</h3></div></div></div>
+    <div class="col-md-3"><div class="card card-stat border-secondary"><div class="card-body"><small class="text-muted">客户总数</small><h3>{{ total_customers }}</h3></div></div></div>
 </div>
 {% endblock %}

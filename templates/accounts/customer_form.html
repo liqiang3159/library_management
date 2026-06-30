@@ -1,0 +1,40 @@
+﻿{% extends "base.html" %}
+{% block content %}
+<h4 class="mb-3"><i class="bi bi-person-plus"></i> {% if customer %}编辑客户{% else %}添加客户{% endif %}</h4>
+<div class="card"><div class="card-body">
+<form method="post">
+    {% csrf_token %}
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">姓名</label>
+            <input type="text" name="real_name" class="form-control" value="{{ customer.real_name|default:'' }}">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">手机号</label>
+            <input type="text" name="phone" class="form-control" value="{{ customer.phone|default:'' }}" required>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">身份证号</label>
+            <input type="text" name="id_card" class="form-control" value="{{ customer.id_card|default:'' }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">会员等级</label>
+            <select name="member_level" class="form-select">
+                <option value="normal" {% if customer.member_level == 'normal' %}selected{% endif %}>普通会员</option>
+                <option value="silver" {% if customer.member_level == 'silver' %}selected{% endif %}>银卡会员</option>
+                <option value="gold" {% if customer.member_level == 'gold' %}selected{% endif %}>金卡会员</option>
+                <option value="diamond" {% if customer.member_level == 'diamond' %}selected{% endif %}>钻石会员</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">积分</label>
+            <input type="number" name="points" class="form-control" value="{{ customer.points|default:'0' }}">
+        </div>
+    </div>
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">保存</button>
+        <a href="{% url 'customer_list' %}" class="btn btn-secondary">取消</a>
+    </div>
+</form>
+</div></div>
+{% endblock %}

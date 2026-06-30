@@ -1,0 +1,38 @@
+﻿{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4><i class="bi bi-person-lines-fill"></i> 客户管理</h4>
+    <a href="{% url 'customer_create' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> 添加客户</a>
+</div>
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>姓名</th><th>手机号</th><th>身份证号</th><th>会员等级</th><th>积分</th><th>消费总额</th><th>注册时间</th><th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in customers %}
+                <tr>
+                    <td>{{ c.real_name|default:'-' }}</td>
+                    <td>{{ c.phone }}</td>
+                    <td>{{ c.id_card|default:'-' }}</td>
+                    <td>{% if c.member_level == 'diamond' %}💎{% elif c.member_level == 'gold' %}🥇{% elif c.member_level == 'silver' %}🥈{% else %}🔘{% endif %} {{ c.get_member_level_display }}</td>
+                    <td>{{ c.points }}</td>
+                    <td>¥{{ c.total_spent }}</td>
+                    <td>{{ c.created_at|date:"Y-m-d" }}</td>
+                    <td>
+                        <a href="{% url 'customer_edit' c.pk %}" class="btn btn-sm btn-outline-primary">编辑</a>
+                        <a href="{% url 'customer_delete' c.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('确定删除？')">删除</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" class="text-center text-muted py-3">暂无客户</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% include "_pagination.html" with page_obj=customers %}
+{% endblock %}

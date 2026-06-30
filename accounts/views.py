@@ -56,15 +56,15 @@ def dashboard(request):
         'total_rooms': Room.objects.count(),
         'available_rooms': Room.objects.filter(status='available').count(),
         'occupied_rooms': Room.objects.filter(status='occupied').count(),
-        'booked_rooms': Room.objects.filter(status='booked').count(),
         'dirty_rooms': Room.objects.filter(status='dirty').count(),
-        'maintenance_rooms': Room.objects.filter(status='maintenance').count(),
         'today_orders': Order.objects.filter(created_at__date=timezone.now().date()).count(),
-        'pending_orders': Order.objects.filter(status='pending').count(),
         'pending_tasks': CleaningTask.objects.filter(status='pending').count(),
-        'total_room_types': RoomType.objects.count(),
+        'total_customers': Customer.objects.count(),
+        'total_employees': User.objects.count(),
     }
     return render(request, 'accounts/dashboard.html', context)
+
+# ========== 员工管理 ==========
 
 @login_required
 @user_passes_test(is_super_admin)
@@ -86,8 +86,8 @@ def employee_create(request):
         if User.objects.filter(username=username).exists():
             messages.error(request, '账号已存在')
             return render(request, 'accounts/employee_form.html')
-        user = User.objects.create_user(username=username, password=password, real_name=real_name, phone=phone, role=role)
-        OperationLog.objects.create(operator=request.user, action_type='create', content=f'新增员工:{username}')
+        User.objects.create_user(username=username, password=password, real_name=real_name, phone=phone, role=role)
+        OperationLog.objects.create(operator=request.user, action_type='create', content='新增员工:' + username)
         messages.success(request, '员工创建成功')
         return redirect('employee_list')
     return render(request, 'accounts/employee_form.html')
@@ -100,16 +100,27 @@ def employee_edit(request, pk):
         employee.real_name = request.POST.get('real_name', employee.real_name)
         employee.phone = request.POST.get('phone', employee.phone)
         employee.role = request.POST.get('role', employee.role)
-        is_active = request.POST.get('is_active')
-        employee.is_active = is_active == 'on'
+        employee.is_active = request.POST.get('is_active') == 'on'
         new_password = request.POST.get('password')
         if new_password:
             employee.set_password(new_password)
         employee.save()
-        OperationLog.objects.create(operator=request.user, action_type='update', content=f'编辑员工:{employee.username}')
+        OperationLog.objects.create(operator=request.user, action_type='update', content='编辑员工:' + employee.username)
         messages.success(request, '更新成功')
         return redirect('employee_list')
     return render(request, 'accounts/employee_form.html', {'employee': employee})
+
+@login_required
+@user_passes_test(is_super_admin)
+def employee_delete(request, pk):
+    employee = get_object_or_404(User, pk=pk)
+    username = employee.username
+    employee.delete()
+    OperationLog.objects.create(operator=request.user, action_type='delete', content='删除员工:' + username)
+    messages.success(request, '员工已删除')
+    return redirect('employee_list')
+
+# ========== 客户管理 ==========
 
 @login_required
 @user_passes_test(is_super_admin)
@@ -118,6 +129,58 @@ def customer_list(request):
     paginator = Paginator(customers, 20)
     page = request.GET.get('page', 1)
     return render(request, 'accounts/customer_list.html', {'customers': paginator.get_page(page)})
+
+@login_required
+@user_passes_test(is_super_admin)
+def customer_create(request):
+    if request.method == 'POST':
+        phone = request.POST.get('phone')
+        if Customer.objects.filter(phone=phone).exists():
+            messages.error(request, '该手机号已存在')
+            return render(request, 'accounts/customer_form.html')
+        c = Customer.objects.create(
+            real_name=request.POST.get('real_name', ''),
+            phone=phone,
+            id_card=request.POST.get('id_card', ''),
+            member_level=request.POST.get('member_level', 'normal'),
+            points=request.POST.get('points', 0),
+        )
+        OperationLog.objects.create(operator=request.user, action_type='create', content='新增客户:' + (c.real_name or phone))
+        messages.success(request, '客户创建成功')
+        return redirect('customer_list')
+    return render(request, 'accounts/customer_form.html')
+
+@login_required
+@user_passes_test(is_super_admin)
+def customer_edit(request, pk):
+    customer = get_object_or_404(Customer, pk=pk)
+    if request.method == 'POST':
+        customer.real_name = request.POST.get('real_name', '')
+        phone = request.POST.get('phone')
+        if Customer.objects.filter(phone=phone).exclude(pk=pk).exists():
+            messages.error(request, '该手机号已被其他客户使用')
+            return render(request, 'accounts/customer_form.html', {'customer': customer})
+        customer.phone = phone
+        customer.id_card = request.POST.get('id_card', '')
+        customer.member_level = request.POST.get('member_level', 'normal')
+        customer.points = request.POST.get('points', 0)
+        customer.save()
+        OperationLog.objects.create(operator=request.user, action_type='update', content='编辑客户:' + (customer.real_name or phone))
+        messages.success(request, '更新成功')
+        return redirect('customer_list')
+    return render(request, 'accounts/customer_form.html', {'customer': customer})
+
+@login_required
+@user_passes_test(is_super_admin)
+def customer_delete(request, pk):
+    customer = get_object_or_404(Customer, pk=pk)
+    info = customer.real_name or customer.phone
+    customer.delete()
+    OperationLog.objects.create(operator=request.user, action_type='delete', content='删除客户:' + info)
+    messages.success(request, '客户已删除')
+    return redirect('customer_list')
+
+# ========== 操作日志 ==========
 
 @login_required
 @user_passes_test(is_super_admin)
