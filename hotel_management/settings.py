@@ -2,24 +2,39 @@
 from pathlib import Path
 from datetime import timedelta
 
-# ---- PyMySQL 兼容 MySQLdb（Railway Linux 环境必备） ----
-import pymysql
-pymysql.install_as_MySQLdb()
+# ---- PyMySQL 兼容 MySQLdb（仅在 MySQL 环境时加载） ----
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
+if "mysql" in DATABASE_URL:
+    import pymysql
+    pymysql.install_as_MySQLdb()
 
 import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-# Local venv path (only used on Windows dev)\nif os.path.exists(BASE_DIR / "venv" / "Lib" / "site-packages"):\n    sys.path.insert(0, str(BASE_DIR / "venv" / "Lib" / "site-packages"))
+# Local venv path (only used on Windows dev)
+if os.path.exists(BASE_DIR / "venv" / "Lib" / "site-packages"):
+    sys.path.insert(0, str(BASE_DIR / "venv" / "Lib" / "site-packages"))
 
 # ---- 环境变量驱动（本地默认 + Railway 覆盖） ----
 SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-hotel-management-system-2026")
 DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
+
+# ---- ALLOWED_HOSTS：本地 * / Railway 动态域名 ----
+RAILWAY_PUBLIC_DOMAIN = os.environ.get("RAILWAY_PUBLIC_DOMAIN")
+if RAILWAY_PUBLIC_DOMAIN:
+    ALLOWED_HOSTS = [RAILWAY_PUBLIC_DOMAIN, f".{RAILWAY_PUBLIC_DOMAIN.split('.', 1)[-1]}"]
+else:
+    ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
 
 # ---- 数据库：优先 Railway 注入的 DATABASE_URL ----
-DATABASE_URL = os.environ.get("DATABASE_URL")
 if DATABASE_URL:
-    DATABASES = {"default": dj_database_url.parse(DATABASE_URL)}
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
 else:
     DATABASES = {
         "default": {
@@ -133,7 +148,21 @@ SIMPLE_JWT = {
 
 # ===== 跨域与安全 =====
 CORS_ALLOW_ALL_ORIGINS = True
-CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "http://127.0.0.1:8000").split(",")
+_csrf_env = os.environ.get("CSRF_TRUSTED_ORIGINS", "http://127.0.0.1:8000,http://localhost:8000")
+CSRF_TRUSTED_ORIGINS = _csrf_env.split(",")
+if RAILWAY_PUBLIC_DOMAIN:
+    CSRF_TRUSTED_ORIGINS.append(f"https://{RAILWAY_PUBLIC_DOMAIN}")
+
 LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/accounts/login/"
+
+# ===== Railway 生产环境安全设置 =====
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
