@@ -1,4 +1,4 @@
-﻿import os, sys
+import os, sys
 from pathlib import Path
 from datetime import timedelta
 
