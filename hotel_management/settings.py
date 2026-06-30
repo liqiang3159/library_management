@@ -1,4 +1,4 @@
-import os, sys
+import os
 from pathlib import Path
 from datetime import timedelta
 
@@ -11,9 +11,6 @@ if "mysql" in DATABASE_URL:
 import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-# Local venv path (only used on Windows dev)
-if os.path.exists(BASE_DIR / "venv" / "Lib" / "site-packages"):
-    sys.path.insert(0, str(BASE_DIR / "venv" / "Lib" / "site-packages"))
 
 # ---- 环境变量驱动（本地默认 + Railway 覆盖） ----
 SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-hotel-management-system-2026")
@@ -22,11 +19,11 @@ DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
 # ---- ALLOWED_HOSTS：本地 * / Railway 动态域名 ----
 RAILWAY_PUBLIC_DOMAIN = os.environ.get("RAILWAY_PUBLIC_DOMAIN")
 if RAILWAY_PUBLIC_DOMAIN:
-    ALLOWED_HOSTS = [RAILWAY_PUBLIC_DOMAIN, f".{RAILWAY_PUBLIC_DOMAIN.split('.', 1)[-1]}"]
+    ALLOWED_HOSTS = [RAILWAY_PUBLIC_DOMAIN, ".railway.app"]
 else:
     ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
 
-# ---- 数据库：优先 Railway 注入的 DATABASE_URL ----
+# ---- 数据库：优先 Railway 注入的 DATABASE_URL，构建阶段回退 SQLite ----
 if DATABASE_URL:
     DATABASES = {
         "default": dj_database_url.parse(
@@ -38,16 +35,8 @@ if DATABASE_URL:
 else:
     DATABASES = {
         "default": {
-            "ENGINE": "django.db.backends.mysql",
-            "NAME": "hotel_management",
-            "USER": "root",
-            "PASSWORD": "123456",
-            "HOST": "127.0.0.1",
-            "PORT": "3306",
-            "OPTIONS": {
-                "charset": "utf8mb4",
-                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
-            },
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
         }
     }
 
@@ -151,7 +140,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 _csrf_env = os.environ.get("CSRF_TRUSTED_ORIGINS", "http://127.0.0.1:8000,http://localhost:8000")
 CSRF_TRUSTED_ORIGINS = _csrf_env.split(",")
 if RAILWAY_PUBLIC_DOMAIN:
-    CSRF_TRUSTED_ORIGINS.append(f"https://{RAILWAY_PUBLIC_DOMAIN}")
+    CSRF_TRUSTED_ORIGINS.append("https://" + RAILWAY_PUBLIC_DOMAIN)
 
 LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/"
